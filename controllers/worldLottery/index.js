@@ -15,7 +15,7 @@ router.post('/', catchAsyncAction(async (req, res) => {
     return makeResponse(res, RECORD_CREATED, true, LOTTERY_ADDED, newWorldlottery);
 }));
 
-// Update Lottery
+// Update Lottery 
 router.patch('/:id', catchAsyncAction(async (req, res) => {
     const getRecord = await findLotteryDetail({ _id: req.params.id });
     if (!getRecord) return makeResponse(res, NOT_FOUND, false, NOT_FOUND);
