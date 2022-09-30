@@ -1,4 +1,4 @@
-import { Admin } from '../../models/index.js';
+import { Admin, FestivalLottery, User, WorldLottery } from '../../models/index.js';
 
 //Find admin
 export const adminProfile = async (condition = {}) => Admin.findOne(condition).exec();
@@ -32,3 +32,60 @@ export const deleteAdmin = (id) => new Promise((resolve, reject) => {
 		.then(resolve)
 		.catch(reject)
 });
+
+// Find Users
+export const findAllUsersList = async (skip, limit, search = {}) => {
+	delete search.limit;
+	delete search.page;
+	return await User.find(search).select('-password -otp')
+		.skip(skip).limit(Number(limit))
+		.sort('-createdAt')
+		.exec()
+};
+
+// Find User
+export const userDetail = async (search = {}) => await User.findOne(search).select('-password -otp').exec();
+
+// Update Users
+export const updateUserDetail = async (condition = {}, userprops = {}) => await User.findOneAndUpdate(condition, { $set: userprops }, { new: true });
+
+// Users count
+export const findAllUsersCount = async (search) => await User.countDocuments(search).exec();
+
+// Find World Lottery
+export const findAllWorldLottery = async (skip, limit, search = {}) => {
+	delete search.limit;
+	delete search.page;
+	return await WorldLottery.find(search).select('-password -otp')
+		.skip(skip).limit(Number(limit))
+		.sort('-createdAt')
+		.exec()
+};
+
+// Find World Lottery
+export const worldLotteryDetail = async (search = {}) => await WorldLottery.findOne(search).exec();
+
+// Update World Lottery
+export const updateWorldLotteryDetail = async (condition = {}, lotteryprops = {}) => await WorldLottery.findOneAndUpdate(condition, { $set: lotteryprops }, { new: true });
+
+// World Lottery count
+export const findAllWorldLotteryCount = async (search) => await WorldLottery.countDocuments(search).exec();
+
+// Find Festival Lottery
+export const findAllFestivalList = async (skip, limit, search = {}) => {
+	delete search.limit;
+	delete search.page;
+	return await FestivalLottery.find(search)
+		.skip(skip).limit(Number(limit))
+		.sort('-createdAt')
+		.exec()
+};
+
+// Find Festival Lottery
+export const festivalLotteryDetail = async (search = {}) => await FestivalLottery.findOne(search).exec();
+
+// Update Festival Lottery
+export const updateFestivalLotteryDetail = async (condition = {}, lotteryprops = {}) => await FestivalLottery.findOneAndUpdate(condition, { $set: lotteryprops }, { new: true });
+
+// World Festival count
+export const findAllFestivalLotteryCount = async (search) => await FestivalLottery.countDocuments(search).exec();

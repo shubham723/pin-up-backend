@@ -2,14 +2,13 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, findAdminById, findAdminDetail, generateOtp, hashPassword, matchPassword, sendEmail, updateAdmin, verifyToken } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllUsersCount, findAllUsersList, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findUserDetail, generateOtp, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
-import config from "config";
 
 //Response messages
 const { USER_ADDED, LOGIN, OTP_MISMATCH, FETCH_USER, ALREADY_REGISTER, INVALID_EMAIL, PASSWORD_INVALID, VERIFY_OTP, OTP_FOR_PASSWORD, PASSWORD_REQUIRED, OTP_SENT, LOGOUT,
-    PASSWORD_CHANGED, USER_NOTFOUND, EMAIL_NOT_REGISTER, ACCOUNT_DISABLED } = responseMessages.EN;
+    PASSWORD_CHANGED, USER_NOTFOUND, EMAIL_NOT_REGISTER, ACCOUNT_DISABLED, LOTTERY_ADDED, FETCH_WEEK_USER } = responseMessages.EN;
 //Response status code
 const { RECORD_CREATED, RECORD_ALREADY_EXISTS, SUCCESS, NOT_FOUND, AUTH_ERROR, BAD_REQUEST, FORBIDDEN } = statusCodes;
 
@@ -136,5 +135,193 @@ router.post('/resend-otp', validators('RESEND_OTP'), catchAsyncAction(async (req
         return makeResponse(res, BAD_REQUEST, false, error.message);
     })
 }));
+
+// Add User
+router.post('/user', catchAsyncAction(async (req, res) => {
+    const { email } = req.body;
+    const userRecord = await findUserDetail({ email });
+    if (userRecord) return makeResponse(res, RECORD_ALREADY_EXISTS, false, ALREADY_REGISTER);
+    //encrypt password
+    const password = await hashPassword(req.body.password);
+    if (password) req.body.password = password;
+    const newUser = await addUser(req.body);
+    //Delete fileds temporary from response
+    const userDetail = await userMapper(newUser);
+    return makeResponse(res, RECORD_CREATED, true, USER_ADDED, userDetail);
+}));
+
+//User List
+router.get('/users', catchAsyncAction(async (req, res) => {
+    let searchingUser = {};
+    let page = 1,
+        limit = 10,
+        skip = 0,
+        status;
+    if (req.query.status) status = req.query.status;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    let regx;
+    let searchFilter = req.query;
+    if (searchFilter?.search) {
+        regx = new RegExp(searchFilter?.search);
+        searchingUser = {
+            isDeleted: false, $or: [{ 'firstName': { '$regex': regx, $options: 'i' } }]
+        }
+    };
+    if (!searchFilter?.search) {
+        searchingUser = {
+            isDeleted: false,
+        }
+    };
+    if (status) searchingUser["status"] = status;
+    let userRecord = await findAllUsersList(skip, limit, searchingUser);
+    let userCount = await findAllUsersCount(searchingUser);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, userRecord, {
+        current_page: Number(page),
+        total_records: userCount,
+        total_pages: Math.ceil(userCount / limit),
+    });
+}));
+
+//User Details
+router.get('/user/:id', catchAsyncAction(async (req, res) => {
+    let userRecord = await userDetail({ _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, userRecord);
+}));
+
+//Update User
+router.patch('/user/:id', catchAsyncAction(async (req, res) => {
+    let updatedUser = await updateUserDetail({ _id: req.params.id }, req.body);
+    let updateUserProfile = await userMapper(updatedUser);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, updateUserProfile);
+}));
+
+//this week users List
+router.get('/get_recent_users', catchAsyncAction(async (req, res) => {
+    let searchingUser = {};
+    let page = 1,
+        limit = 10,
+        skip = 0;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    const startOfWeek = moment().startOf('week');
+    const endOfWeek = moment().endOf('week');
+    searchingUser = {
+        isDeleted: false, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
+    }
+    let thisWeekRecords = await findAllUsersList(skip, limit, searchingUser)
+    return makeResponse(res, SUCCESS, true, FETCH_WEEK_USER, thisWeekRecords);
+}));
+
+// Add World Lottery
+router.post('/world-lottery', catchAsyncAction(async (req, res) => {
+    const newWorldlottery = await addLottery(req.body);
+    return makeResponse(res, RECORD_CREATED, true, LOTTERY_ADDED, newWorldlottery);
+}));
+
+//World Lottery List
+router.get('/world-lottery', catchAsyncAction(async (req, res) => {
+    let searchingUser = {};
+    let page = 1,
+        limit = 10,
+        skip = 0,
+        status;
+    if (req.query.status) status = req.query.status;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    let regx;
+    let searchFilter = req.query;
+    if (searchFilter?.search) {
+        regx = new RegExp(searchFilter?.search);
+        searchingUser = {
+            isDeleted: false, $or: [{ 'firstName': { '$regex': regx, $options: 'i' } }]
+        }
+    };
+    if (!searchFilter?.search) {
+        searchingUser = {
+            isDeleted: false,
+        }
+    };
+    if (status) searchingUser["status"] = status;
+    let worldLotteryRecord = await findAllWorldLottery(skip, limit, searchingUser);
+    let worldLotteryCount = await findAllWorldLotteryCount(searchingUser);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, worldLotteryRecord, {
+        current_page: Number(page),
+        total_records: worldLotteryCount,
+        total_pages: Math.ceil(worldLotteryCount / limit),
+    });
+}));
+
+//World Lottery Details
+router.get('/world-lottery/:id', catchAsyncAction(async (req, res) => {
+    let weeklyLottery = await worldLotteryDetail({ _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, weeklyLottery);
+}));
+
+//Update World Lottery
+router.patch('/world-lottery/:id', catchAsyncAction(async (req, res) => {
+    let weeklyLottery = await updateWorldLotteryDetail({ _id: req.params.id }, req.body);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, weeklyLottery);
+}));
+
+// Add Festival Lottery
+router.post('/festival-lottery', catchAsyncAction(async (req, res) => {
+    const newFestivalLottery = await addFestivalLottery(req.body);
+    return makeResponse(res, RECORD_CREATED, true, LOTTERY_ADDED, newFestivalLottery);
+}));
+
+//Festival Lottery List
+router.get('/festival-lottery', catchAsyncAction(async (req, res) => {
+    let searchingUser = {};
+    let page = 1,
+        limit = 10,
+        skip = 0,
+        status;
+    if (req.query.status) status = req.query.status;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    let regx;
+    let searchFilter = req.query;
+    if (searchFilter?.search) {
+        regx = new RegExp(searchFilter?.search);
+        searchingUser = {
+            isDeleted: false, $or: [{ 'firstName': { '$regex': regx, $options: 'i' } }]
+        }
+    };
+    if (!searchFilter?.search) {
+        searchingUser = {
+            isDeleted: false,
+        }
+    };
+    if (status) searchingUser["status"] = status;
+    let festivalLotteryRecord = await findAllFestivalList(skip, limit, searchingUser);
+    let festivalLotteryCount = await findAllFestivalLotteryCount(searchingUser);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, festivalLotteryRecord, {
+        current_page: Number(page),
+        total_records: festivalLotteryCount,
+        total_pages: Math.ceil(festivalLotteryCount / limit),
+    });
+}));
+
+//Festival Lottery Details
+router.get('/festival-lottery/:id', catchAsyncAction(async (req, res) => {
+    let festivalLottery = await findFestivalLotteryDetail({ _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, festivalLottery);
+}));
+
+//Update Festival Lottery
+router.patch('/festival-lottery/:id', catchAsyncAction(async (req, res) => {
+    let festivalLottery = await updateFestivalLottery({ _id: req.params.id }, req.body);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, festivalLottery);
+}));
+
 
 export const adminController = router;

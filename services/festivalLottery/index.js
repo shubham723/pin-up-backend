@@ -12,12 +12,10 @@ export const addFestivalLottery = async (payload = {}) => {
     const characters = 'Lottery';
     const charactersLength = characters.length;
     const length = 5;
-	console.log('ewfe')
     for (var i = 0; i < length; i++) {
         fileName += characters.charAt(Math.floor(Math.random() * charactersLength));
     };
     const qrCodeName = fileName;
-	console.log('ef')
 	const newFilename = `bezkoder-${qrCodeName}-${Date.now()}.png`;
 	payload.qrCode = `uploads/qrcode/${newFilename}`;
 	const newFestivallottery = new FestivalLottery(payload);
