@@ -2,9 +2,10 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllUsersCount, findAllUsersList, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findUserDetail, generateOtp, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllUsersCount, findAllUsersList, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findUserDetail, generateOtp, getUsersCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
+import moment from 'moment';
 
 //Response messages
 const { USER_ADDED, LOGIN, OTP_MISMATCH, FETCH_USER, ALREADY_REGISTER, INVALID_EMAIL, PASSWORD_INVALID, VERIFY_OTP, OTP_FOR_PASSWORD, PASSWORD_REQUIRED, OTP_SENT, LOGOUT,
@@ -150,6 +151,20 @@ router.post('/user', catchAsyncAction(async (req, res) => {
     return makeResponse(res, RECORD_CREATED, true, USER_ADDED, userDetail);
 }));
 
+// Dashboard
+router.get('/dashboard', catchAsyncAction(async (req, res) => {
+    const startOfWeek = moment().startOf('week');
+    const endOfWeek = moment().endOf('week');
+    const searchingUser = {
+        isDeleted: false, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
+    }
+    const totalUserCount = await getUsersCount({ isDeleted: false });
+    const totalFestivalLotteryCount = await findAllFestivalLotteryCount({ isDeleted: false });
+    const totalWorldLotteryCount = await findAllWorldLotteryCount({ isDeleted: false });
+    const weekUsersCount = await findAllUsersCount(searchingUser);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, { totalUserCount, totalFestivalLotteryCount, totalWorldLotteryCount, weekUsersCount });
+}));
+
 //User List
 router.get('/users', catchAsyncAction(async (req, res) => {
     let searchingUser = {};
@@ -213,8 +228,13 @@ router.get('/get_recent_users', catchAsyncAction(async (req, res) => {
     searchingUser = {
         isDeleted: false, createdAt: { $gte: startOfWeek, $lte: endOfWeek }
     }
-    let thisWeekRecords = await findAllUsersList(skip, limit, searchingUser)
-    return makeResponse(res, SUCCESS, true, FETCH_WEEK_USER, thisWeekRecords);
+    const thisWeekRecords = await findAllUsersList(skip, limit, searchingUser);
+    const userCount = await findAllUsersCount(searchingUser);
+    return makeResponse(res, SUCCESS, true, FETCH_WEEK_USER, thisWeekRecords, {
+        current_page: Number(page),
+        total_records: userCount,
+        total_pages: Math.ceil(userCount / limit),
+    });
 }));
 
 // Add World Lottery
