@@ -4,10 +4,12 @@ const festivalLotterySchema = mongoose.Schema({
     qrCode: {
         type: String,
     },
-    ticketNumber: {
+    ticketId: {
         type: String,
+        unique: true
         // required: true
     },
+    ticketNumber: [String],
     price: {
         type: String,
         // required: true

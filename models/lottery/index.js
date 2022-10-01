@@ -4,9 +4,12 @@ const wordLotterySchema = mongoose.Schema({
     qrCode: {
         type: String,
     },
-    ticketNumber: {
+    ticketId: {
         type: String,
         // required: true
+    },
+    ticketNumber: {
+        type: [String]
     },
     price: {
         type: String,
