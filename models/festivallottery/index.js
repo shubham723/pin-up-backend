@@ -24,6 +24,12 @@ const festivalLotterySchema = mongoose.Schema({
     name: {
         type: String
     },
+    winAmount: {
+        type: String
+    },
+    totalPrize: {
+        type: String
+    },
     isDeleted: {
         type: Boolean,
         default: false

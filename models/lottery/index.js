@@ -18,6 +18,9 @@ const wordLotterySchema = mongoose.Schema({
     drawDate: {
         type: String
     },
+    winAmount: {
+        type: String
+    },
     priceAmount: {
         type: String,
         required: true
@@ -25,7 +28,7 @@ const wordLotterySchema = mongoose.Schema({
     name: {
         type: String
     },
-    totalPrice: {
+    totalPrize: {
         type: String
     },
     isDeleted: {
