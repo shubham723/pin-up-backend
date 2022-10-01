@@ -23,7 +23,7 @@ export const addFestivalLottery = async (payload = {}) => {
 };
 
 //Update Lottery
-export const updateFestivalLottery = (lotteryprops = {}, condition = {}) => new Promise((resolve, reject) => {
+export const updateFestivalLottery = (condition = {}, lotteryprops = {}) => new Promise((resolve, reject) => {
 	FestivalLottery.findOneAndUpdate(condition, { $set: lotteryprops }, { new: true })
 		.then(resolve)
 		.catch(reject);
