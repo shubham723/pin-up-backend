@@ -21,10 +21,6 @@ const wordLotterySchema = mongoose.Schema({
     winAmount: {
         type: String
     },
-    priceAmount: {
-        type: String,
-        required: true
-    },
     name: {
         type: String
     },

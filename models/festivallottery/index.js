@@ -17,10 +17,6 @@ const festivalLotterySchema = mongoose.Schema({
     drawDate: {
         type: String
     },
-    priceAmount: {
-        type: String,
-        required: true
-    },
     name: {
         type: String
     },
