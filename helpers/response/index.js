@@ -95,7 +95,8 @@ export const responseMessages = {
     'BLOCK_USER': 'User Blocked successfully.',
     'LOTTERY_ADDED': 'Lottery added success',
     'UPDATE_LOTTERY': 'Lottery Updated',
-    'LOTTERY_FETCHED': 'Lottery fetched'
+    'LOTTERY_FETCHED': 'Lottery fetched',
+    'SUCCESS_MESSAGE': 'Success'
   },
   'FR': {
 

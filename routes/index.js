@@ -1,7 +1,8 @@
 import Router from 'express';
-import { adminController } from '../controllers/admin/index.js';
 import {
+    adminController,
     festivalLotteryController,
+    paymentController,
     usersController,
     worldLotteryController
 } from '../controllers/index.js'
@@ -12,5 +13,6 @@ router.use('/users', usersController);
 router.use('/worldlottery', worldLotteryController);
 router.use('/festivallottery', festivalLotteryController);
 router.use('/admin/', adminController);
+router.use('/razorpay/', paymentController)
 
 export { router };
