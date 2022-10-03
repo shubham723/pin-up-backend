@@ -25,7 +25,7 @@ router.patch('/:id', catchAsyncAction(async (req, res) => {
 
 // Fetch Lottery
 router.get('/', catchAsyncAction(async(req, res) => {
-    const getRecord = await findAllFestivalLottery();
+    const getRecord = await findAllFestivalLottery({ isDeleted: false });
     return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, getRecord);
 }));
 
