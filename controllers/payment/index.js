@@ -5,6 +5,7 @@ import shortid from 'shortid';
 import crypto from 'crypto';
 import fs from 'fs';
 import { addPayment, updatePayment } from '../../services/index.js';
+import { Payment } from '../../models/index.js';
 
 //Response messages
 const { SUCCESS_MESSAGE } = responseMessages.EN;
@@ -20,12 +21,13 @@ const razorpay = new Razorpay({
 
 // Payment Gateway
 router.post('/', async (req, res) => {
+	console.log(req.body);
 	const payment_capture = 1
-	const amount = 499
+	const { amount = 0, type = "", userId = "", ticketId = "", ticketNumber = "" } = req.body;
 	const currency = 'INR'
 
 	const options = {
-		amount: amount * 100,
+		amount: Number(amount) * 100,
 		currency,
 		receipt: shortid.generate(),
 		payment_capture
@@ -37,11 +39,14 @@ router.post('/', async (req, res) => {
             amount,
             currency,
             receipt: options.receipt,
-            user_id: '6329b09b68b693c8c997e80e',
-            order_id: response.id
+            order_id: response.id,
+			type,
+			user_id: userId,
+			festivalTicketId: ticketId,
+			ticketNumber
         };
-        await addPayment(paymentprops);
-		console.log(response);
+        const pay = await addPayment(paymentprops);
+		console.log(pay);
         return makeResponse(res, SUCCESS, true, SUCCESS_MESSAGE, {
 			id: response.id,
 			currency: response.currency,
@@ -63,10 +68,11 @@ router.post('/verification', async (req, res) => {
     const { mehtod = "", status = "", order_id = "" } = req.body?.payload?.payment?.entity;
 
 	const shasum = crypto.createHmac('sha256', secret)
-	shasum.update(JSON.stringify(req.body))
-	const digest = shasum.digest('hex')
+	shasum.update(JSON.stringify(req.body));
+	const digest = shasum.digest('hex');
+	const paymentRecord = await Payment.findOne({ order_id: req.body.order_id });
 
-	console.log(digest, req.headers['x-razorpay-signature'])
+	console.log(paymentRecord)
 
 	if (digest === req.headers['x-razorpay-signature']) {
 		console.log('request is legit')
@@ -76,6 +82,7 @@ router.post('/verification', async (req, res) => {
             status: status === 'captured' ? 'SUCCESS' : 'FAILED'
         }
         await updatePayment(paymentprops, { order_id });
+		// if (paymentRecord?)
 		fs.writeFileSync('payment1.json', JSON.stringify(req.body, null, 4))
 	} else {
 		// pass it

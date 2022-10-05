@@ -28,7 +28,8 @@
     "nodemon": "^2.0.19",
     "qrcode": "^1.5.1",
     "razorpay": "^2.8.3",
-    "shortid": "^2.2.16"
+    "shortid": "^2.2.16",
+    "socket.io": "^4.5.2"
   },
   "engines": {
     "node": "14.x"

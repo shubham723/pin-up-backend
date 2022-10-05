@@ -43,7 +43,7 @@ router.post('/login', validators('LOGIN'), catchAsyncAction(async (req, res) => 
     const { email, password } = req.body;
     const user = await findUserDetail({ email });
     if (!user) return makeResponse(res, NOT_FOUND, false, INVALID_EMAIL);
-    if (user?.isDeleted == true || user?.status == false) return makeResponse(res, FORBIDDEN, false, ACCOUNT_DISABLED);
+    if (user?.isDeleted == true) return makeResponse(res, FORBIDDEN, false, ACCOUNT_DISABLED);
     const checkPassword = await matchPassword(password, user.password);
     if (!checkPassword) return makeResponse(res, AUTH_ERROR, false, PASSWORD_INVALID);
     const userDetail = await userMapper(user);

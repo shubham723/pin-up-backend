@@ -25,6 +25,17 @@ const paymentSchema = mongoose.Schema({
     method: {
         type: String,
         required: false
+    },
+    type: {
+        type: String,
+        enums: ['WORLDLOTTERY', 'FESTIVALLOTTERY', 'AVIATOR'],
+        required: true
+    },
+    festivalTicketId: {
+        type: String
+    },
+    ticketNumber: {
+        type: String
     }
 }, {
     timestamps: true

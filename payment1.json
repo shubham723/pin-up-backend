@@ -1,26 +1,26 @@
 {
     "entity": "event",
     "account_id": "acc_FiWoxZeQ7iYERh",
-    "event": "payment.failed",
+    "event": "payment.captured",
     "contains": [
         "payment"
     ],
     "payload": {
         "payment": {
             "entity": {
-                "id": "pay_KOtuRTy4qOftGh",
+                "id": "pay_KQ6z4KRPTq3RyM",
                 "entity": "payment",
-                "amount": 49900,
+                "amount": 50000,
                 "currency": "INR",
-                "status": "failed",
-                "order_id": "order_KOtuFac2TmTheF",
+                "status": "captured",
+                "order_id": "order_KQ6yvFLDE8VbRf",
                 "invoice_id": null,
                 "international": false,
                 "method": "paylater",
                 "amount_refunded": 0,
                 "refund_status": null,
-                "captured": false,
-                "description": "Thank you for nothing. Please give us some money",
+                "captured": true,
+                "description": "Purchase of lottery",
                 "card_id": null,
                 "bank": null,
                 "wallet": "getsimpl",
@@ -28,19 +28,20 @@
                 "email": "sdfdsjfh2@gmail.com",
                 "contact": "+918054296478",
                 "notes": [],
-                "fee": null,
-                "tax": null,
-                "error_code": "BAD_REQUEST_ERROR",
-                "error_description": "Payment failed",
+                "fee": 1180,
+                "tax": 180,
+                "error_code": null,
+                "error_description": null,
                 "error_source": null,
                 "error_step": null,
                 "error_reason": null,
                 "acquirer_data": {
                     "transaction_id": null
                 },
-                "created_at": 1664713188
+                "created_at": 1664977572,
+                "base_amount": 50000
             }
         }
     },
-    "created_at": 1664713193
+    "created_at": 1664977577
 }

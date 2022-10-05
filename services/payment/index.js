@@ -1,7 +1,7 @@
 import { Payment } from '../../models/index.js';
 
 //Find Payment
-export const findPayment = async (condition = {}) => Payment.findOne(condition).exec();
+export const findPayment = async (condition = {}) => Payment.find(condition).exec();
 
 //Add Payment
 export const addPayment = async (payload = {}) => {

@@ -1,6 +1,6 @@
 import Router from 'express';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addFestivalLottery, findAllFestivalLottery, findFestivalLottery, updateFestivalLottery } from '../../services/index.js';
+import { addFestivalLottery, findAllFestivalLottery, findAllPaymentList, findFestivalLottery, findPayment, updateFestivalLottery } from '../../services/index.js';
 
 //Response messages
 const { LOTTERY_ADDED, UPDATE_LOTTERY, LOTTERY_FETCHED } = responseMessages.EN;
@@ -26,7 +26,21 @@ router.patch('/:id', catchAsyncAction(async (req, res) => {
 // Fetch Lottery
 router.get('/', catchAsyncAction(async(req, res) => {
     const getRecord = await findAllFestivalLottery({ isDeleted: false });
-    return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, getRecord);
+    const paymentDetails = await findPayment({ type: 'FESTIVALLOTTERY', status: { $ne: 'FAILED' } });
+    const soldTicketNumber = paymentDetails.map(item => item.ticketNumber);
+    console.log('festivallottery', paymentDetails);
+    console.log(soldTicketNumber);
+    const result = [];
+    for (let index = 0; index < getRecord.length; index++) {
+        const ticketNumber = getRecord[index].ticketNumber;
+        const availableTickets = ticketNumber.filter(item => !soldTicketNumber.includes(item));
+        console.log('availableTickets', availableTickets);
+        result.push({
+            ...getRecord[index]._doc,
+            ticketNumber: availableTickets
+        })
+    }
+    return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, result);
 }));
 
 // Fetch Lottery Details
