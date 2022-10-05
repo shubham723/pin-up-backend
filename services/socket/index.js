@@ -8,20 +8,35 @@ const Socket = (io) => {
         console.log('**');
         socket.on('user_connected', async ({ userId }) => {
             console.log(userId);
-            currentUserId = userId;
-            const userDetail = await findUserById({ _id: userId });
-            console.log(userDetail);
-            users.push({
-                name: userDetail?.fullName,
-                id: userDetail?._id?.toHexString()
-            });
-            // users[userId] = userDetail);
-            console.log(users);
-            socket.join(userId);
+            if (userId) {
+                currentUserId = userId;
+                const userDetail = await findUserById({ _id: userId });
+                console.log(userDetail);
+                users.push({
+                    name: userDetail?.fullName,
+                    id: userDetail?._id?.toHexString()
+                });
+                // users[userId] = userDetail);
+                console.log(users);
+                socket.join(userId);
+            }
+            else {
+                socket.join(socket.id);
+            }
+            socket.emit('playing_users', users);
         });
 
         socket.on('disconnect', () => {
-            socket.leave(currentUserId);
+            if (currentUserId) {
+                const currentUserIndex = users.findIndex(item => item.id === currentUserId);
+                users.splice(currentUserIndex, 1);
+                console.log('currentUserId', currentUserId);
+                socket.leave(currentUserId);
+                socket.emit('playing_users', users);
+            }
+            else {
+                socket.leave(socket.id);
+            }
         });
 
         socket.on('set_time', async (payload) => {
