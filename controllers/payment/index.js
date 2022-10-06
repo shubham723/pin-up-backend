@@ -4,7 +4,7 @@ import { makeResponse, responseMessages, statusCodes } from '../../helpers/index
 import shortid from 'shortid';
 import crypto from 'crypto';
 import fs from 'fs';
-import { addPayment, updatePayment } from '../../services/index.js';
+import { addPayment, findUserById, updatePayment, updateUser } from '../../services/index.js';
 import { Payment } from '../../models/index.js';
 
 //Response messages
@@ -70,7 +70,7 @@ router.post('/verification', async (req, res) => {
 	const shasum = crypto.createHmac('sha256', secret)
 	shasum.update(JSON.stringify(req.body));
 	const digest = shasum.digest('hex');
-	const paymentRecord = await Payment.findOne({ order_id: req.body.order_id });
+	const paymentRecord = await Payment.findOne({ order_id });
 
 	console.log(paymentRecord)
 
@@ -82,7 +82,15 @@ router.post('/verification', async (req, res) => {
             status: status === 'captured' ? 'SUCCESS' : 'FAILED'
         }
         await updatePayment(paymentprops, { order_id });
-		// if (paymentRecord?)
+		console.log('paymentRecord', paymentRecord);
+		if (paymentRecord?.type === "AVIATOR" && paymentprops.status === "SUCCESS") {
+			const userRecord = await findUserById({ _id: paymentRecord.user_id });
+			console.log('userRecord', userRecord);
+			const amount = userRecord?.walletBalance || 0;
+			const updatedAmount = Number(amount) + Number(paymentRecord.amount);
+			console.log(updatedAmount);
+			await updateUser({ walletBalance: updatedAmount }, { _id: userRecord._id });
+		}
 		fs.writeFileSync('payment1.json', JSON.stringify(req.body, null, 4))
 	} else {
 		// pass it

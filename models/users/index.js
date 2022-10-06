@@ -46,6 +46,9 @@ const userSchema = mongoose.Schema({
     mobileNumber: {
         type: String
     },
+    walletBalance: {
+        type: Number
+    },
     isDeleted: {
         type: Boolean,
         default: false

@@ -1,4 +1,4 @@
-import { findUserById } from "../users/index.js";
+import { findUserById, updateUser } from "../users/index.js";
 
 const Socket = (io) => {
     console.log('ewe');
@@ -49,10 +49,16 @@ const Socket = (io) => {
             const currentUserIndex = users.findIndex(item => item.id === currentUserId);
             const currentUserDetail = users[currentUserIndex];
             console.log('currentUserDetail', currentUserDetail);
+            const userRecord = await findUserById({ _id: currentUserDetail.id });
+            const wallet = userRecord?.walletBalance || 0;
+            const updatedBalance = Number(wallet) -Number(payload?.price);
+            const updateBalance = await updateUser({ walletBalance: updatedBalance }, { _id: userRecord._id });
+            console.log('updateBalance', updateBalance);
             const updateBetDetails = {
                 bet: payload?.price,
                 mult: payload?.mult,
                 isPlaying: true,
+                balance: updateBalance?.walletBalance || 0,
                 ...currentUserDetail
             };
             console.log(updateBetDetails);

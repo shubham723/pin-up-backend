@@ -8,7 +8,7 @@ import {
     findUserDetail,
     updateUser
 } from '../../services/users/index.js';
-import { generateOtp, hashPassword, matchPassword, sendEmail, verifyToken } from '../../services/index.js';
+import { findFestivalLotteryDetail, findLotteryDetail, findPayment, generateOtp, hashPassword, matchPassword, sendEmail, verifyToken } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import config from "config";
@@ -183,6 +183,43 @@ router.get('/user-list', catchAsyncAction(async(req, res) => {
     const getRecord = await findAllUsers();
     if (!getRecord) return makeResponse(res, NOT_FOUND, false, NOT_FOUND);
     return makeResponse(res, SUCCESS, true, FETCH_USER, getRecord);
+}));
+
+// User purchase
+router.get('/purchase', userAuth, catchAsyncAction(async (req, res) => {
+    const getRecord = await findUserById({ _id: req.userData._id });
+    console.log(getRecord);
+    if (!getRecord) return makeResponse(res, NOT_FOUND, false, NOT_FOUND);
+    const purchaseRecord = await findPayment({
+        $or: [
+            {
+                type: 'WORLDLOTTERY'
+            },
+            {
+                type: 'FESTIVALLOTTERY'
+            }
+        ],
+        status: 'SUCCESS',
+        user_id: req.userData._id
+    });
+    const result = [];
+    for (let index = 0; index < purchaseRecord.length; index++) {
+        const purchaseDetail = purchaseRecord[index];
+        let ticketDetail = {};
+        if (purchaseDetail?.type === "FESTIVALLOTTERY") {
+            ticketDetail = await findFestivalLotteryDetail({ _id: purchaseDetail.festivalTicketId });
+        }
+        if (purchaseDetail?.type === "WORLDLOTTERY") {
+            ticketDetail = await findLotteryDetail({ _id: purchaseDetail.festivalTicketId });
+        }
+        result.push({
+            ...purchaseRecord[index]._doc,
+            ticketDetail
+        });
+    }
+    //Delete fields temporary from response
+    // const userRecord = await userMapper(updateUserProfile);
+    return makeResponse(res, SUCCESS, true, UPDATE_USER, result);
 }));
 
 export const usersController = router;
