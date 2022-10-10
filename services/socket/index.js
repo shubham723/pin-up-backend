@@ -1,23 +1,20 @@
 import { findUserById, updateUser } from "../users/index.js";
 
 const Socket = (io) => {
-    console.log('ewe');
     const users = [];
     let currentUserId;
     io.on('connection', async socket => {
-        console.log('**');
         socket.on('user_connected', async ({ userId }) => {
-            console.log(userId);
-            if (userId) {
+            const currentUserIndex = users.findIndex(item => item.id === currentUserId);
+            if (currentUserIndex === -1 && userId) {
                 currentUserId = userId;
                 const userDetail = await findUserById({ _id: userId });
-                console.log(userDetail);
                 users.push({
                     name: userDetail?.fullName,
-                    id: userDetail?._id?.toHexString()
+                    id: userDetail?._id?.toHexString(),
+                    isPlaying: false,
+                    isWin: false
                 });
-                // users[userId] = userDetail);
-                console.log(users);
                 socket.join(userId);
             }
             else {
@@ -30,7 +27,6 @@ const Socket = (io) => {
             if (currentUserId) {
                 const currentUserIndex = users.findIndex(item => item.id === currentUserId);
                 users.splice(currentUserIndex, 1);
-                console.log('currentUserId', currentUserId);
                 socket.leave(currentUserId);
                 socket.emit('playing_users', users);
             }
@@ -40,32 +36,73 @@ const Socket = (io) => {
         });
 
         socket.on('set_time', async (payload) => {
-            console.log(payload);
-            console.log(users);
             io.emit('get_time', payload);
         });
 
         socket.on('bet', async (payload) => {
             const currentUserIndex = users.findIndex(item => item.id === currentUserId);
-            const currentUserDetail = users[currentUserIndex];
-            console.log('currentUserDetail', currentUserDetail);
-            const userRecord = await findUserById({ _id: currentUserDetail.id });
-            const wallet = userRecord?.walletBalance || 0;
-            const updatedBalance = Number(wallet) -Number(payload?.price);
-            const updateBalance = await updateUser({ walletBalance: updatedBalance }, { _id: userRecord._id });
-            console.log('updateBalance', updateBalance);
-            const updateBetDetails = {
-                bet: payload?.price,
-                mult: payload?.mult,
-                isPlaying: true,
-                balance: updateBalance?.walletBalance || 0,
-                ...currentUserDetail
-            };
-            console.log(updateBetDetails);
-            console.log(users);
-            users[currentUserIndex] = updateBetDetails;
-            console.log('after', users);
-            io.emit('playing_users', users);
+            if (currentUserIndex != -1) {
+                const currentUserDetail = users[currentUserIndex];
+                const { isPlaying = false, ...rest } = currentUserDetail;
+                const updateBetDetails = {
+                    bet: payload?.price,
+                    isPlaying: payload?.isPlaying,
+                    ...rest
+                };
+                console.log(updateBetDetails);
+                users[currentUserIndex] = updateBetDetails;
+                io.emit('playing_users', users);
+            }
+        });
+
+        socket.on('bet_done', async (payload) => {
+            console.log('called', payload)
+            const currentUserIndex = users.findIndex(item => item.id === currentUserId);
+            if (currentUserIndex != -1) {
+                const currentUserDetail = users[currentUserIndex];
+                console.log('currentUserDetail', currentUserDetail);
+                if (currentUserDetail.isPlaying && (payload.isWin || (!currentUserDetail.isWin && !payload.isWin))) {
+                    console.log('if case');
+                    const userRecord = await findUserById({ _id: currentUserDetail.id });
+                    let wallet = userRecord?.walletBalance || 0;
+                    let currentWinAmount = userRecord?.winAmount || 0;
+                    // console.log('currentUserDetail', userRecord)
+                    if (currentUserDetail.isPlaying) {
+                        wallet = Number(Number(wallet) - Number(payload.price)).toFixed(2);
+                    }
+                    console.log('wd;', wallet);
+                    if (payload.isWin) {
+                        let winAmountOfGame = Number(Number(payload.price) * Number(payload.mult));
+                        currentWinAmount = Number(Number(winAmountOfGame) + Number(currentWinAmount)).toFixed(2);
+                        wallet = Number(Number(wallet) + Number(winAmountOfGame)).toFixed(2);
+                    }
+                    console.log('wallet>>>', wallet, currentWinAmount)
+                    const updateBalance = await updateUser({ walletBalance: wallet, winAmount: currentWinAmount }, { _id: userRecord._id });
+                    const { bet = 0, mult = 0, isPlaying = false, isWin = false, balance = 0, ...rest } = currentUserDetail;
+                    const updateBetDetails = {
+                        bet: payload?.price,
+                        mult: payload?.mult,
+                        isPlaying: false,
+                        isWin: payload?.isWin,
+                        balance: updateBalance?.walletBalance || 0,
+                        ...rest
+                    };
+                    console.log('updateBetDetails', updateBetDetails);
+                    users[currentUserIndex] = updateBetDetails;
+                    console.log('after', users);
+                    io.emit('playing_users', users);
+                }
+                else {
+                    const { isWin = false, isPlaying = false, ...rest } = currentUserDetail;
+                    const updateBetDetails = {
+                        isWin: false,
+                        isPlaying: false,
+                        ...rest
+                    };
+                    console.log('other case', updateBetDetails);
+                    users[currentUserIndex] = updateBetDetails;
+                }
+            }
         });
     })
 };

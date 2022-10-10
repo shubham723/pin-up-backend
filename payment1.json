@@ -8,28 +8,28 @@
     "payload": {
         "payment": {
             "entity": {
-                "id": "pay_KQ7rEYbd6xnFry",
+                "id": "pay_KS4fyXSzdui0ql",
                 "entity": "payment",
-                "amount": 500000,
+                "amount": 50000,
                 "currency": "INR",
                 "status": "captured",
-                "order_id": "order_KQ7r16r1SDMo7O",
+                "order_id": "order_KS4foiaPcUcQcK",
                 "invoice_id": null,
                 "international": false,
-                "method": "wallet",
+                "method": "paylater",
                 "amount_refunded": 0,
                 "refund_status": null,
                 "captured": true,
                 "description": "Purchase of lottery",
                 "card_id": null,
                 "bank": null,
-                "wallet": "jiomoney",
+                "wallet": "icic",
                 "vpa": null,
                 "email": "sdfdsjfh2@gmail.com",
                 "contact": "+918054296478",
                 "notes": [],
-                "fee": 11800,
-                "tax": 1800,
+                "fee": 1180,
+                "tax": 180,
                 "error_code": null,
                 "error_description": null,
                 "error_source": null,
@@ -38,10 +38,10 @@
                 "acquirer_data": {
                     "transaction_id": null
                 },
-                "created_at": 1664980648,
-                "base_amount": 500000
+                "created_at": 1665406125,
+                "base_amount": 50000
             }
         }
     },
-    "created_at": 1664980654
+    "created_at": 1665406130
 }

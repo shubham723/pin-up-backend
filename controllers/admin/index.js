@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllPaymentCounts, findAllPaymentList, findAllUsersCount, findAllUsersList, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findPaymentById, findPaymentDetails, findUserDetail, generateOtp, getUsersCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllPaymentCounts, findAllPaymentList, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findPaymentById, findPaymentDetails, findUserDetail, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -384,5 +384,34 @@ router.get('/payment/:id', catchAsyncAction(async (req, res) => {
     return makeResponse(res, SUCCESS, true, FETCH_USER, paymentDetails);
 }));
 
+//Withdraw List
+router.get('/withdraw', catchAsyncAction(async (req, res) => {
+    let searchingWithdraw = {};
+    let page = 1,
+        limit = 10,
+        skip = 0,
+        status;
+    if (req.query.status) status = req.query.status;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    let regx;
+    let searchFilter = req.query;
+    if (searchFilter?.search) {
+        regx = new RegExp(searchFilter?.search);
+        searchingWithdraw = {
+            isDeleted: false, $or: [{ 'firstName': { '$regex': regx, $options: 'i' } }]
+        }
+    };
+    if (status) searchingWithdraw["status"] = status;
+    let withdrawRecords = await findAllWithdraw(searchingWithdraw, skip, limit);
+    let withdrawCount = await getWithdrawCount();
+    return makeResponse(res, SUCCESS, true, FETCH_USER, withdrawRecords, {
+        current_page: Number(page),
+        total_records: withdrawCount,
+        total_pages: Math.ceil(withdrawCount / limit),
+    });
+}));
 
 export const adminController = router;
