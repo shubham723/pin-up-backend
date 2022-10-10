@@ -30,4 +30,4 @@ router.get('/withdraw-details/:id', catchAsyncAction(async(req, res) => {
     return makeResponse(res, SUCCESS, true, FETCH_USER, getRecord);
 }));
 
-export const usersController = router;
+export const withdrawController = router;
