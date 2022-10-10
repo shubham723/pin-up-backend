@@ -15,8 +15,7 @@ const withdrawSchema = mongoose.Schema({
         type: String
     },
     upiId: {
-        type: String,
-        required: true
+        type: String
     },
     status: {
         type: String,
