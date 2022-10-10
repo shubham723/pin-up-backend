@@ -7,11 +7,9 @@ const withdrawSchema = mongoose.Schema({
     },
     accountNumber: {
         type: String,
-        // required: true
     },
     accountName: {
         type: String,
-        // required: true
     },
     ifscCode: {
         type: String
@@ -28,6 +26,9 @@ const withdrawSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.ObjectId,
         ref: 'User'
+    },
+    withdrawAmount: {
+        type: String
     },
     isDeleted: {
         type: Boolean,

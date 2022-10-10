@@ -10,8 +10,9 @@ const { RECORD_CREATED, SUCCESS, NOT_FOUND } = statusCodes;
 
 const router = Router();
 
-//Add User
-router.post('/', catchAsyncAction(async (req, res) => {
+//Add Withdraw Request
+router.post('/', userAuth, catchAsyncAction(async (req, res) => {
+    req.body.userId = req.userData._id;
     const newWithdraw = await addWithdraw(req.body);
     return makeResponse(res, RECORD_CREATED, true, USER_ADDED, newWithdraw);
 }));
