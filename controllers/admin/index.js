@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllPaymentCounts, findAllPaymentList, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findPaymentById, findPaymentDetails, findUserDetail, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllPaymentCounts, findAllPaymentList, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findPaymentById, findPaymentDetails, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -380,7 +380,7 @@ router.get('/payment', catchAsyncAction(async (req, res) => {
 
 //Payment Details
 router.get('/payment/:id', catchAsyncAction(async (req, res) => {
-    let paymentDetails = await findPaymentDetails({ _id: req.params.id });
+    const paymentDetails = await findPaymentDetails({ _id: req.params.id });
     return makeResponse(res, SUCCESS, true, FETCH_USER, paymentDetails);
 }));
 
@@ -412,6 +412,18 @@ router.get('/withdraw', catchAsyncAction(async (req, res) => {
         total_records: withdrawCount,
         total_pages: Math.ceil(withdrawCount / limit),
     });
+}));
+
+//Withdraw Details
+router.get('/withdraw/:id', catchAsyncAction(async (req, res) => {
+    const withdrawDetails = await findWithdrawDetails({ _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, withdrawDetails);
+}));
+
+//Update Withdraw Details
+router.patch('/withdraw/:id', catchAsyncAction(async (req, res) => {
+    const withdrawDetails = await updateWithdraw(req.body, { _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, withdrawDetails);
 }));
 
 export const adminController = router;

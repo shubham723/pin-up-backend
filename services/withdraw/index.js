@@ -1,7 +1,7 @@
 import { Withdraw } from '../../models/index.js';
 
 //Find withdraw
-export const findWithdrawDetails = async (condition = {}) => Withdraw.findOne(condition).exec();
+export const findWithdrawDetails = async (condition = {}) => Withdraw.findOne(condition).populate('userId').exec();
 
 //Add Withdraw
 export const addWithdraw = async (payload = {}) => {
@@ -18,7 +18,7 @@ export const updateWithdraw = (withdrawprops = {}, condition = {}) => new Promis
 
 //Find all Withdraw
 export const findAllWithdraw = (search = {}, skip, limit) => new Promise((resolve, reject) => {
-	Withdraw.find(search)
+	Withdraw.find(search).populate('userId')
 		.skip(skip).limit(limit)
 		.sort('-createdAt')
 		.then(resolve)
