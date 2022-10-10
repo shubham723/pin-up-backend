@@ -1,6 +1,7 @@
 import Router from 'express';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
 import { addWithdraw, findWithdrawDetails, updateWithdraw } from '../../services/index.js';
+import userAuth from '../../middlewares/auth/user.js';
 
 //Response messages
 const { USER_ADDED, FETCH_USER, UPDATE_USER } = responseMessages.EN;
@@ -26,6 +27,13 @@ router.patch('/:id', catchAsyncAction(async (req, res) => {
 // Withdraw Details
 router.get('/withdraw-details/:id', catchAsyncAction(async(req, res) => {
     const getRecord = await findWithdrawDetails({ _id: req.params.id });
+    if (!getRecord) return makeResponse(res, NOT_FOUND, false, NOT_FOUND);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, getRecord);
+}));
+
+// Withdraw Details
+router.get('/withdraw-details', userAuth, catchAsyncAction(async(req, res) => {
+    const getRecord = await findWithdrawDetails({ userId: req.userData.id });
     if (!getRecord) return makeResponse(res, NOT_FOUND, false, NOT_FOUND);
     return makeResponse(res, SUCCESS, true, FETCH_USER, getRecord);
 }));

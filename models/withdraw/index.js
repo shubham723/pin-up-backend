@@ -25,6 +25,10 @@ const withdrawSchema = mongoose.Schema({
         enum: ['PENDING', 'APPROVED', 'COMPLETED'],
         default: 'PENDING'
     },
+    userId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+    },
     isDeleted: {
         type: Boolean,
         default: false
