@@ -1,4 +1,5 @@
 import { FestivalLottery } from "../../models/index.js";
+import QRCode from "qrcode";
 
 //Find lottery by condition
 export const findFestivalLottery = async (condition = {}) => FestivalLottery.find(condition).exec();
