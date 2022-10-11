@@ -18,6 +18,7 @@ export const addFestivalLottery = async (payload = {}) => {
     const qrCodeName = fileName;
 	const newFilename = `bezkoder-${qrCodeName}-${Date.now()}.png`;
 	payload.qrCode = `uploads/qrcode/${newFilename}`;
+	await QRCode.toFile(`./uploads/qrcode/${newFilename}`, `lottery`);
 	const newFestivallottery = new FestivalLottery(payload);
 	return newFestivallottery.save();
 };
