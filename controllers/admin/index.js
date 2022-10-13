@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLottery, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsers, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -491,6 +491,20 @@ router.patch('/result/:id', catchAsyncAction(async (req, res) => {
 router.post('/result', catchAsyncAction(async (req, res) => {
     const resultDetails = await addResult(req.body);
     return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+}));
+
+//Users
+router.get('/result-users', catchAsyncAction(async (req, res) => {
+    const resultDetails = await findAllUsers();
+    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+}));
+
+//Add Result
+router.get('/result-lottery', catchAsyncAction(async (req, res) => {
+    const resultDetails = await findAllLottery({ isDeleted: false });
+    const festivalLottery = await findAllFestivalList({ isDeleted: false });
+    const result = [...resultDetails, ...festivalLottery]
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result);
 }));
 
 export const adminController = router;
