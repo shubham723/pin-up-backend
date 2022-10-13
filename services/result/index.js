@@ -11,7 +11,10 @@ export const addResult = async (payload = {}) => {
 
 //Find Result detail
 export const findResultById = async (search = {}) => {
-	const resultRecord = await Result.findOne(search);
+	const resultRecord = await Result.findOne(search).populate({
+		path: 'userId',
+		select: '-password'
+	});
 	if (resultRecord && resultRecord != null) return resultRecord;
 	else return {};
 };

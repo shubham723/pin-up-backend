@@ -456,7 +456,7 @@ router.get('/result', catchAsyncAction(async (req, res) => {
         result.push({
             ticketDetails: festivalLottery ? festivalLottery : worldLottery,
             ...item._doc
-        })
+        });
     }
     let withdrawCount = await findAllResultCount({ isDeleted: false });
     return makeResponse(res, SUCCESS, true, FETCH_USER, result, {
@@ -469,7 +469,13 @@ router.get('/result', catchAsyncAction(async (req, res) => {
 //Result Details
 router.get('/result/:id', catchAsyncAction(async (req, res) => {
     const resultDetails = await findResultById({ _id: req.params.id });
-    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+    const festivalLottery = await findFestivalLotteryDetail({ _id: resultDetails.ticketId });
+    const worldLottery = await findLotteryDetail({ _id: resultDetails?.ticketId });
+    const result = {
+        ticketDetails: festivalLottery ? festivalLottery : worldLottery,
+        ...resultDetails?._doc
+    };
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result);
 }));
 
 //Update Result Details
