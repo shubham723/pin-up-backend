@@ -69,6 +69,7 @@ const Socket = (io) => {
                     // console.log('currentUserDetail', userRecord)
                     if (currentUserDetail.isPlaying) {
                         wallet = Number(Number(wallet) - Number(payload.price)).toFixed(2);
+                        currentWinAmount = Number(Number(currentWinAmount) - Number(payload.price));
                     }
                     console.log('wd;', wallet);
                     if (payload.isWin) {
