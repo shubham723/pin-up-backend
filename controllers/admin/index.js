@@ -428,7 +428,9 @@ router.patch('/withdraw/:id', catchAsyncAction(async (req, res) => {
 
 //Result List
 router.get('/result', catchAsyncAction(async (req, res) => {
-    let searchingWithdraw = {};
+    let searchingWithdraw = {
+        isDeleted: false
+    };
     let page = 1,
         limit = 10,
         skip = 0,
