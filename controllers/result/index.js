@@ -1,17 +1,17 @@
 import Router from 'express';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { findAllLotteryResults, findFestivalLotteryDetail, findLotteryDetail } from '../../services/index.js';
+import { allLotteryResults, findFestivalLotteryDetail, findLotteryDetail } from '../../services/index.js';
 
 //Response messages
 const { FETCH_USER } = responseMessages.EN;
 //Response status code
-const { SUCCESS, NOT_FOUND } = statusCodes;
+const { SUCCESS } = statusCodes;
 
 const router = Router();
 
 // Result List API
 router.get('/', catchAsyncAction(async (req, res) => {
-    const getRecord = await findAllLotteryResults({ isDeleted: false });
+    const getRecord = await allLotteryResults({ isDeleted: false });
     const result = [];
     for (const item of getRecord) {
         const festivalLottery = await findFestivalLotteryDetail({ _id: item.ticketId });

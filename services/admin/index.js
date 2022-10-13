@@ -127,5 +127,17 @@ export const findAllLotteryResults = async (skip, limit, search = {}) => {
 		.exec()
 };
 
+// Find Lottery Results
+export const allLotteryResults = async (search = {}) => {
+	delete search.limit;
+	delete search.page;
+	return await Result.find(search).populate({
+		path: 'userId',
+		select: '-password'
+	})
+		.sort('-createdAt')
+		.exec()
+};
+
 // Result Lottery count
 export const findAllResultCount = async (search) => await Result.countDocuments(search).exec();
