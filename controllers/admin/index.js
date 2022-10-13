@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllPaymentCounts, findAllPaymentList, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findPaymentById, findPaymentDetails, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -424,6 +424,65 @@ router.get('/withdraw/:id', catchAsyncAction(async (req, res) => {
 router.patch('/withdraw/:id', catchAsyncAction(async (req, res) => {
     const withdrawDetails = await updateWithdraw(req.body, { _id: req.params.id });
     return makeResponse(res, SUCCESS, true, FETCH_USER, withdrawDetails);
+}));
+
+//Result List
+router.get('/result', catchAsyncAction(async (req, res) => {
+    let searchingWithdraw = {};
+    let page = 1,
+        limit = 10,
+        skip = 0,
+        status;
+    if (req.query.status) status = req.query.status;
+    if (req.query.page == 0) req.query.page = '';
+    if (req.query.page) page = req.query.page;
+    if (req.query.limit) limit = req.query.limit;
+    skip = (page - 1) * limit;
+    let regx;
+    let searchFilter = req.query;
+    if (searchFilter?.search) {
+        regx = new RegExp(searchFilter?.search);
+        searchingWithdraw = {
+            isDeleted: false, $or: [{ 'firstName': { '$regex': regx, $options: 'i' } }]
+        }
+    };
+    if (status) searchingWithdraw["status"] = status;
+    console.log(searchingWithdraw);
+    let withdrawRecords = await findAllLotteryResults(skip, limit, searchingWithdraw);
+    const result = [];
+    for (const item of withdrawRecords) {
+        const festivalLottery = await findFestivalLotteryDetail({ _id: item.ticketId });
+        const worldLottery = await findLotteryDetail({ _id: item?.ticketId });
+        result.push({
+            ticketDetails: festivalLottery ? festivalLottery : worldLottery,
+            ...item._doc
+        })
+    }
+    let withdrawCount = await findAllResultCount({ isDeleted: false });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result, {
+        current_page: Number(page),
+        total_records: withdrawCount,
+        total_pages: Math.ceil(withdrawCount / limit),
+    });
+}));
+
+//Result Details
+router.get('/result/:id', catchAsyncAction(async (req, res) => {
+    const resultDetails = await findResultById({ _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+}));
+
+//Update Result Details
+router.patch('/result/:id', catchAsyncAction(async (req, res) => {
+    const resultDetails = await updateResult(req.body, { _id: req.params.id });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+}));
+
+
+//Add Result
+router.post('/result', catchAsyncAction(async (req, res) => {
+    const resultDetails = await addResult(req.body);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
 }));
 
 export const adminController = router;

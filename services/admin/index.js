@@ -1,4 +1,4 @@
-import { Admin, FestivalLottery, Payment, User, WorldLottery } from '../../models/index.js';
+import { Admin, FestivalLottery, Payment, Result, User, WorldLottery } from '../../models/index.js';
 
 //Find admin
 export const adminProfile = async (condition = {}) => Admin.findOne(condition).exec();
@@ -113,3 +113,19 @@ export const findPaymentDetails = async (search = {}) => {
 		select: 'fullName email mobileNumber'
 	}).exec()
 };
+
+// Find Lottery Results
+export const findAllLotteryResults = async (skip, limit, search = {}) => {
+	delete search.limit;
+	delete search.page;
+	return await Result.find(search).populate({
+		path: 'userId',
+		select: '-password'
+	})
+		.skip(skip).limit(Number(limit))
+		.sort('-createdAt')
+		.exec()
+};
+
+// Result Lottery count
+export const findAllResultCount = async (search) => await Result.countDocuments(search).exec();

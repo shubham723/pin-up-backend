@@ -3,6 +3,7 @@ import {
     adminController,
     festivalLotteryController,
     paymentController,
+    resultController,
     usersController,
     withdrawController,
     worldLotteryController
@@ -16,5 +17,6 @@ router.use('/festivallottery', festivalLotteryController);
 router.use('/admin/', adminController);
 router.use('/razorpay/', paymentController);
 router.use('/withdraw/', withdrawController);
+router.use('/result/', resultController);
 
 export { router };
