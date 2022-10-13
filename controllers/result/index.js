@@ -11,7 +11,7 @@ const router = Router();
 
 // Result List API
 router.get('/', catchAsyncAction(async (req, res) => {
-    const getRecord = await findAllLotteryResults();
+    const getRecord = await findAllLotteryResults({ isDeleted: false });
     const result = [];
     for (const item of getRecord) {
         const festivalLottery = await findFestivalLotteryDetail({ _id: item.ticketId });
