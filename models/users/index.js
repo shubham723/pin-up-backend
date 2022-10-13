@@ -47,10 +47,12 @@ const userSchema = mongoose.Schema({
         type: String
     },
     walletBalance: {
-        type: Number
+        type: Number,
+        default: 0
     },
     winAmount: {
-        type:Number
+        type:Number,
+        default: 0
     },
     isDeleted: {
         type: Boolean,
