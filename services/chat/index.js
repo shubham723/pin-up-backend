@@ -42,7 +42,7 @@ export const chatList = async () => {
     ]).exec();
     // return messageRecord;
     if (messageRecord.length > 0) return messageRecord.reduce((unique, item) => {
-        if (!unique.some(obj => obj.senderId === item.receiverId)) unique.push(item);
+        if (!unique.some(obj => obj.senderId?.toHexString() == item.receiverId?.toHexString())) unique.push(item);
         return unique;
     }, []);
     else return [];
