@@ -34,7 +34,7 @@ router.get('/:id', catchAsyncAction(async (req, res) => {
     if (req.params?.id) {
         const getRecord = await findChat({ $or: [{ senderId: req.params?.id }, { receiverId: req.params?.id }] });
         // const userDetail = await findUserDetail({ _id: req.params.id });
-        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, { getRecord });
+        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, getRecord);
     }
     else {
         return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, []);
