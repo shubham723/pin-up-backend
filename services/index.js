@@ -9,3 +9,4 @@ export * from './payment/index.js';
 export * from './withdraw/index.js';
 export * from './result/index.js';
 export * from './mult/index.js';
+export * from './chat/index.js';

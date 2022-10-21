@@ -1,6 +1,7 @@
 import Router from 'express';
 import {
     adminController,
+    chatController,
     festivalLotteryController,
     multController,
     paymentController,
@@ -20,5 +21,6 @@ router.use('/razorpay/', paymentController);
 router.use('/withdraw/', withdrawController);
 router.use('/result/', resultController);
 router.use('/mult/', multController);
+router.use('/chat/', chatController);
 
 export { router };

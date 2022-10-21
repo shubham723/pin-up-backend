@@ -1,28 +1,43 @@
+import { addChat } from "../chat/index.js";
 import { addMult, findMult } from "../mult/index.js";
 import { findUserById, updateUser } from "../users/index.js";
 
 const Socket = (io) => {
     const users = [];
     let currentUserId;
+
     io.on('connection', async socket => {
-        socket.on('user_connected', async ({ userId }) => {
-            const currentUserIndex = users.findIndex(item => item.id === currentUserId);
-            if (currentUserIndex === -1 && userId) {
-                currentUserId = userId;
-                const userDetail = await findUserById({ _id: userId });
-                users.push({
-                    name: userDetail?.fullName,
-                    id: userDetail?._id?.toHexString(),
-                    isPlaying: false,
-                    isWin: false,
-                    game: []
-                });
-                socket.join(userId);
+        socket.on('user_connected', async (payload) => {
+            if (payload?.type === "admin") {
+                currentUserId = "admin";
+                socket.join(currentUserId);
             }
             else {
-                socket.join(socket.id);
+                const { userId = null } = payload;
+                console.log('called event', userId);
+                const currentUserIndex = users.findIndex(item => item.id === currentUserId);
+                if (userId) {
+                    if (currentUserIndex === -1) {
+                        currentUserId = userId;
+                        const userDetail = await findUserById({ _id: userId });
+                        users.push({
+                            name: userDetail?.fullName,
+                            id: userDetail?._id?.toHexString(),
+                            isPlaying: false,
+                            isWin: false,
+                            game: []
+                        });
+                        socket.join(userId);
+                    }
+                }
+                else {
+                    currentUserId = socket.id;
+                    socket.join(socket.id);
+                    console.log(socket.id);
+                    io.to(socket.id).emit('user_joined', socket.id);
+                }
+                socket.emit('playing_users', users);
             }
-            socket.emit('playing_users', users);
         });
 
         socket.on('disconnect', () => {
@@ -188,6 +203,13 @@ const Socket = (io) => {
             await addMult({ mult: payload });
             const multRecords = await findMult();
             io.emit('mult_details', multRecords);
+        });
+
+        socket.on('send_message', async (payload) => {
+            if (payload?.loggedInUser) {
+                await addChat(payload);
+            }
+            socket.broadcast.to(payload?.userId).emit('receive_message', payload);
         });
 
     });
