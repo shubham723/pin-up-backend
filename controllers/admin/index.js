@@ -524,7 +524,7 @@ router.get('/chat/list', catchAsyncAction(async (req, res) => {
             userDetail
         })
     }
-    return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, result);
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result);
 }));
 
 // Fetch Chat Details
@@ -532,10 +532,10 @@ router.get('/:id', catchAsyncAction(async (req, res) => {
     if (req.params?.id) {
         const getRecord = await findChat({ $or: [{ senderId: req.params?.id }, { receiverId: req.params?.id }] });
         // const userDetail = await findUserDetail({ _id: req.params.id });
-        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, { getRecord });
+        return makeResponse(res, SUCCESS, true, FETCH_USER, { getRecord });
     }
     else {
-        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, []);
+        return makeResponse(res, SUCCESS, true, FETCH_USER, []);
     }
 }));
 
