@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLottery, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsers, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, chatList, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLottery, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsers, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findChat, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -505,6 +505,38 @@ router.get('/result-lottery', catchAsyncAction(async (req, res) => {
     const festivalLottery = await findAllFestivalList({ isDeleted: false });
     const result = [...resultDetails, ...festivalLottery]
     return makeResponse(res, SUCCESS, true, FETCH_USER, result);
+}));
+
+// Fetch Chat List
+router.get('/chat/list', catchAsyncAction(async (req, res) => {
+    const messageRecord = await chatList({ $or: [{ senderId: req.body?.userId }, { receiverId: req.body?.userId }] });
+    const result = [];
+    for (const item of messageRecord) {
+        let userDetail = {};
+        if (item?.senderType === "ADMIN") {
+            userDetail = await findUserById({ _id: item?.receiverId})
+        }
+        else {
+            userDetail = await findUserById({ _id: item?.senderId });
+        }
+        result.push({
+            ...item,
+            userDetail
+        })
+    }
+    return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, result);
+}));
+
+// Fetch Chat Details
+router.get('/:id', catchAsyncAction(async (req, res) => {
+    if (req.params?.id) {
+        const getRecord = await findChat({ $or: [{ senderId: req.params?.id }, { receiverId: req.params?.id }] });
+        // const userDetail = await findUserDetail({ _id: req.params.id });
+        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, { getRecord });
+    }
+    else {
+        return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, []);
+    }
 }));
 
 export const adminController = router;
