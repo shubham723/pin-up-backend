@@ -1,7 +1,7 @@
 import { Chat } from '../../models/index.js';
 
 //Find chat detail
-export const findChat = async (condition = {}) => await Chat.find(condition).sort('-createdAt').exec();
+export const findChat = async (condition = {}) => await Chat.find(condition).sort('+createdAt').exec();
 
 //Add Chat
 export const addChat = async (payload = {}) => {
