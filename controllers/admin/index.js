@@ -509,16 +509,10 @@ router.get('/result-lottery', catchAsyncAction(async (req, res) => {
 
 // Fetch Chat List
 router.get('/chat/list', catchAsyncAction(async (req, res) => {
-    const messageRecord = await chatList({ $or: [{ senderId: req.body?.userId }, { receiverId: req.body?.userId }] });
+    const messageRecord = await chatList();
     const result = [];
     for (const item of messageRecord) {
-        let userDetail = {};
-        if (item?.senderType === "ADMIN") {
-            userDetail = await findUserById({ _id: item?.receiverId})
-        }
-        else {
-            userDetail = await findUserById({ _id: item?.senderId });
-        }
+        const userDetail = await findUserById({ _id: item?.senderId });
         result.push({
             ...item,
             userDetail
