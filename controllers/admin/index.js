@@ -538,14 +538,14 @@ router.get('/chat/:id', catchAsyncAction(async (req, res) => {
     console.log(req.params.id);
     if (req.params?.id) {
         const getRecord = await findChat({
-            $or: [
-                {
+            // $or: [
+            //     {
                     senderId: req.params?.id
-                },
-                {
-                    receiverId: req.params?.id
-                }
-            ]
+            //     },
+            //     {
+            //         receiverId: req.params?.id
+            //     }
+            // ]
         });
         return makeResponse(res, SUCCESS, true, FETCH_USER, getRecord);
     }
