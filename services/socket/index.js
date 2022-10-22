@@ -106,7 +106,7 @@ const Socket = (io) => {
                             const userRecord = await findUserById({ _id: currentUserDetail.id });
                             let wallet = userRecord?.walletBalance || 0;
                             let currentWinAmount = userRecord?.winAmount || 0;
-                            // console.log('currentUserDetail', userRecord)
+                            // console.log('currentUserDetail', userRecord) 
                             // if (currentUserDetail.isPlaying) {
                             wallet = Number(Number(wallet) - Number(item.price)).toFixed(2);
                             currentWinAmount = Number(Number(currentWinAmount) - Number(item.price));
