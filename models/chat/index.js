@@ -9,6 +9,10 @@ const chatSchema = mongoose.Schema({
     message: {
         type: String
     },
+    isGuest: {
+        type: Boolean,
+        default: false
+    },
     senderType: {
         type: String,
         enums: ['ADMIN', 'USER', 'GUEST']

@@ -206,9 +206,10 @@ const Socket = (io) => {
         });
 
         socket.on('send_message', async (payload) => {
-            if (payload?.loggedInUser) {
+            console.log(payload);
+            // if (payload?.loggedInUser) {
                 await addChat(payload);
-            }
+            // }
             socket.broadcast.to(payload?.userId).emit('receive_message', payload);
         });
 

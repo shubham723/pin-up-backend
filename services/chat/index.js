@@ -33,7 +33,8 @@ export const chatList = async () => {
                 message: { $last: "$message" },
                 receiverId: { $last: "$receiverId" },
                 senderType: { $last: "$senderType" },
-                id: { $last: "$_id" }
+                id: { $last: "$_id" },
+                isGuest: { $last: "$isGuest" }
             },
         },
         {

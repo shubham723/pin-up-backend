@@ -510,13 +510,25 @@ router.get('/result-lottery', catchAsyncAction(async (req, res) => {
 // Fetch Chat List
 router.get('/chat/list', catchAsyncAction(async (req, res) => {
     const messageRecord = await chatList();
+    console.log(messageRecord);
     const result = [];
     for (const item of messageRecord) {
-        const userDetail = await findUserById({ _id: item?.senderId });
-        result.push({
-            ...item,
-            userDetail
-        })
+        if (!item?.isGuest) {
+            const userDetail = await findUserById({ _id: item?.senderId });
+            result.push({
+                ...item,
+                userDetail
+            })
+        }
+        else {
+            result.push({
+                ...item,
+                userDetail: {
+                    fullName: 'Guest',
+                    _id: item?._id
+                }
+            })
+        }
     }
     return makeResponse(res, SUCCESS, true, FETCH_USER, result);
 }));
@@ -525,10 +537,10 @@ router.get('/chat/list', catchAsyncAction(async (req, res) => {
 router.get('/chat/:id', catchAsyncAction(async (req, res) => {
     console.log(req.params.id);
     if (req.params?.id) {
-        const getRecord = await findChat({ 
+        const getRecord = await findChat({
             $or: [
-                { 
-                    senderId: req.params?.id 
+                {
+                    senderId: req.params?.id
                 },
                 {
                     receiverId: req.params?.id
