@@ -12,20 +12,21 @@ export const addChat = async (payload = {}) => {
 // Find Chat List
 export const chatList = async () => {
     let messageRecord = await Chat.aggregate([
-        // {
-        //     $match: {
-        //         $and: [
-        //             { senderType: 'ADMIN' },
-        //             {
-        //                 $or: [
-        //                     { senderId: new mongoose.Types.ObjectId(id) },
-        //                     { recieverId: new mongoose.Types.ObjectId(id) }
-        //                 ]
+        {
+            $match: {
+                $or: [
+                    { senderType: 'USER' },
+                    { senderType: 'GUEST' }
+                    // {
+                    //     $or: [
+                    //         { senderId: new mongoose.Types.ObjectId(id) },
+                    //         { recieverId: new mongoose.Types.ObjectId(id) }
+                    //     ]
 
-        //             }
-        //         ]
-        //     },
-        // },
+                    // }
+                ]
+            },
+        },
         {
             $group: {
                 _id: "$senderId",

@@ -513,6 +513,7 @@ router.get('/chat/list', catchAsyncAction(async (req, res) => {
     console.log(messageRecord);
     const result = [];
     for (const item of messageRecord) {
+        console.log(item);
         if (!item?.isGuest) {
             const userDetail = await findUserById({ _id: item?.senderId });
             result.push({
