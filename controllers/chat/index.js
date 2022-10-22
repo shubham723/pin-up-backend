@@ -32,7 +32,7 @@ router.get('/list', catchAsyncAction(async (req, res) => {
 // Fetch Chat Details
 router.get('/:id', catchAsyncAction(async (req, res) => {
     if (req.params?.id) {
-        const getRecord = await findChat({ $or: [{ senderId: req.params?.id }, { receiverId: req.params?.id }] });
+        const getRecord = await findChat({ senderId: req.params?.id });
         return makeResponse(res, SUCCESS, true, LOTTERY_FETCHED, getRecord);
     }
     else {

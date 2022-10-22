@@ -207,6 +207,7 @@ const Socket = (io) => {
 
         socket.on('send_message', async (payload) => {
             console.log(payload);
+            console.log(users);
             // if (payload?.loggedInUser) {
                 await addChat(payload);
             // }
