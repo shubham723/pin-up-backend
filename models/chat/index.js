@@ -11,7 +11,7 @@ const chatSchema = mongoose.Schema({
     },
     senderType: {
         type: String,
-        enums: ['ADMIN', 'USER']
+        enums: ['ADMIN', 'USER', 'GUEST']
     }
 }, {
     timestamps: true
