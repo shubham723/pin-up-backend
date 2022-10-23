@@ -2,7 +2,7 @@ import Router from 'express';
 import { privateKey } from '../../config/privateKeys.js';
 import authAdmin from '../../middlewares/auth/admin.js';
 import { catchAsyncAction, makeResponse, responseMessages, statusCodes } from '../../helpers/index.js';
-import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, chatList, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLottery, findAllLotteryResults, findAllPaymentCounts, findAllPaymentList, findAllResultCount, findAllUsers, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findChat, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
+import { addAdmin, addFestivalLottery, addLottery, addResult, addUser, chatList, findAdminById, findAdminDetail, findAllFestivalList, findAllFestivalLotteryCount, findAllLottery, findAllLotteryResults, findAllLotteryUsers, findAllPaymentCounts, findAllPaymentList, findAllPurchasedLotteryTikets, findAllResultCount, findAllUsers, findAllUsersCount, findAllUsersList, findAllWithdraw, findAllWorldLottery, findAllWorldLotteryCount, findChat, findFestivalLotteryDetail, findLotteryDetail, findPaymentById, findPaymentDetails, findResultById, findUserById, findUserDetail, findWithdrawDetails, generateOtp, getUsersCount, getWithdrawCount, hashPassword, matchPassword, sendEmail, updateAdmin, updateFestivalLottery, updateResult, updateUserDetail, updateWithdraw, updateWorldLotteryDetail, userDetail, verifyToken, worldLotteryDetail } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
@@ -493,10 +493,26 @@ router.post('/result', catchAsyncAction(async (req, res) => {
     return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
 }));
 
-//Users
-router.get('/result-users', catchAsyncAction(async (req, res) => {
-    const resultDetails = await findAllUsers();
-    return makeResponse(res, SUCCESS, true, FETCH_USER, resultDetails);
+// Users Result
+router.get('/result-users/:id', catchAsyncAction(async (req, res) => {
+    const purchasedUsers = await findAllLotteryUsers({ festivalTicketId: req.params.id });
+    const result = [];
+    for (const item of purchasedUsers) {
+        const userDetail = await findUserById({ _id: item });
+        result.push(userDetail);
+    }
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result);
+}));
+
+// Result Ticket
+router.get('/result-ticket/:id/:userId', catchAsyncAction(async (req, res) => {
+    const result = await findAllPurchasedLotteryTikets({ 
+        $and: [
+            { festivalTicketId: req.params.id  },
+            { user_id: req.params.userId }
+        ]
+    });
+    return makeResponse(res, SUCCESS, true, FETCH_USER, result);
 }));
 
 //Add Result

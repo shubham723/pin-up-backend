@@ -112,6 +112,7 @@ const Socket = (io) => {
                             currentWinAmount = Number(Number(currentWinAmount) - Number(item.price));
                             // }
                             console.log('wd;', wallet);
+                            console.log('item', item);
                             if (item.isWin) {
                                 let winAmountOfGame = Number(Number(item.price) * Number(item.mult));
                                 currentWinAmount = Number(Number(winAmountOfGame) + Number(currentWinAmount)).toFixed(2);

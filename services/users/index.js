@@ -1,4 +1,4 @@
-import { User } from '../../models/index.js';
+import { Payment, User } from '../../models/index.js';
 
 //Find user by mobile
 export const userProfile = async (condition = {}) => User.findOne(condition).exec();
@@ -55,3 +55,16 @@ export const changeStatus = (_id, data) => new Promise((resolve, reject) => {
 		.then(resolve)
 		.catch(reject);
 });
+
+//Find All users
+export const findAllLotteryUsers = async (search = {}) => {
+	const paymentRecords = await Payment.find(search).select('user_id');
+	const userMapper = paymentRecords.map(item => item?.user_id?.toHexString());
+	const filterUserId = [...new Set(userMapper)];
+	return filterUserId;
+};
+
+// Find All Lotery Tickets
+export const findAllPurchasedLotteryTikets = async (search = {}) => {
+	return await Payment.find(search);
+};
