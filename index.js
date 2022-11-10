@@ -38,4 +38,5 @@ const io = new Server(server, {
 		origin: '*'
 	}
 });
+global.io = io;
 Socket(io);

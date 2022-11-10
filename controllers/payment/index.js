@@ -90,7 +90,8 @@ router.post('/verification', async (req, res) => {
 			const updatedAmount = Number(amount) + Number(paymentRecord.amount);
 			console.log(updatedAmount);
 			const updatedBalance = await updateUser({ walletBalance: updatedAmount }, { _id: userRecord._id });
-			io.to(socket.id).emit('update_wallet', updatedBalance);
+			console.log('sockc', global);
+			global.io.emit('update_wallet', updatedBalance);
 		}
 		fs.writeFileSync('payment1.json', JSON.stringify(req.body, null, 4))
 	} else {

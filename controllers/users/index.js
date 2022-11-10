@@ -8,7 +8,7 @@ import {
     findUserDetail,
     updateUser
 } from '../../services/users/index.js';
-import { findFestivalLotteryDetail, findLotteryDetail, findPayment, generateOtp, hashPassword, matchPassword, sendEmail, verifyToken } from '../../services/index.js';
+import { findAllWithdrawDetails, findFestivalLotteryDetail, findLotteryDetail, findPayment, findWithdrawDetails, generateOtp, hashPassword, matchPassword, sendEmail, verifyToken } from '../../services/index.js';
 import { validators } from '../../middlewares/validations/index.js';
 import { userMapper } from '../../helpers/mapper/index.js';
 import config from "config";
@@ -220,6 +220,11 @@ router.get('/purchase', userAuth, catchAsyncAction(async (req, res) => {
     //Delete fields temporary from response
     // const userRecord = await userMapper(updateUserProfile);
     return makeResponse(res, SUCCESS, true, UPDATE_USER, result);
+}));
+
+router.get('/payment-history', userAuth, catchAsyncAction(async(req, res) => {
+    const paymentRecords = await findAllWithdrawDetails({ userId: req.userData.id });
+    return makeResponse(res, SUCCESS, true, UPDATE_USER, paymentRecords);
 }));
 
 export const usersController = router;

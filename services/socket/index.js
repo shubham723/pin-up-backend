@@ -33,7 +33,8 @@ const Socket = (io) => {
                             socket: socket.id
                         }
                         users.push(user);
-                        global.socket = socket;
+                        // global.socket = socket;
+                        // global.io = io;
                         socket.join(socket.id);
                         io.to(socket.id).emit('user_joined', user);
                     }
@@ -257,6 +258,10 @@ const Socket = (io) => {
                                 io.emit('playing_users', users);
                             }
 
+
+                            if (!item?.isWin) {
+                                io.to(socket.id).emit('auto_check', {});
+                            }
                         }
                     }
                 }

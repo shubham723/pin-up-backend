@@ -25,6 +25,14 @@ export const findAllWithdraw = (search = {}, skip, limit) => new Promise((resolv
 		.catch(reject)
 });
 
+//Find all Withdraw
+export const findAllWithdrawDetails = (search = {}) => new Promise((resolve, reject) => {
+	Withdraw.find(search).populate('userId')
+		.sort('-createdAt')
+		.then(resolve)
+		.catch(reject)
+});
+
 //Get count
 export const getWithdrawCount = (search) => new Promise((resolve, reject) => {
 	Withdraw.count(search)
