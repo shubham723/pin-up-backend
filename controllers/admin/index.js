@@ -8,7 +8,7 @@ import { userMapper } from '../../helpers/mapper/index.js';
 import moment from 'moment';
 
 //Response messages
-const { USER_ADDED, LOGIN, OTP_MISMATCH, FETCH_USER, ALREADY_REGISTER, INVALID_EMAIL, PASSWORD_INVALID, VERIFY_OTP, OTP_FOR_PASSWORD, PASSWORD_REQUIRED, OTP_SENT, LOGOUT,
+const { USER_ADDED, LOGIN, OTP_MISMATCH, FETCH_USER, ALREADY_REGISTER, INVALID_EMAIL, PASSWORD_INVALID, VERIFY_OTP, OTP_FOR_PASSWORD, OTP_SENT,
     PASSWORD_CHANGED, USER_NOTFOUND, EMAIL_NOT_REGISTER, ACCOUNT_DISABLED, LOTTERY_ADDED, FETCH_WEEK_USER } = responseMessages.EN;
 //Response status code
 const { RECORD_CREATED, RECORD_ALREADY_EXISTS, SUCCESS, NOT_FOUND, AUTH_ERROR, BAD_REQUEST, FORBIDDEN } = statusCodes;
@@ -36,9 +36,11 @@ router.post('/', catchAsyncAction(async (req, res) => {
 router.post('/login', validators('LOGIN'), catchAsyncAction(async (req, res) => {
     const { email, password } = req.body;
     const admin = await findAdminDetail({ email });
+    console.log(admin);
     if (!admin) return makeResponse(res, NOT_FOUND, false, INVALID_EMAIL);
     if (admin?.isDeleted == true || admin?.status == false) return makeResponse(res, FORBIDDEN, false, ACCOUNT_DISABLED);
     const checkPassword = await matchPassword(password, admin.password);
+    console.log(checkPassword);
     if (!checkPassword) return makeResponse(res, AUTH_ERROR, false, PASSWORD_INVALID);
     const adminDetail = await userMapper(admin);
     //Genrate auth token
